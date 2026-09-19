@@ -1,24 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <model version="NetLogo 7.0.4" snapToGrid="true">
-  <code>breed [patrouilleurs patrouilleur]
+  <code><![CDATA[breed [patrouilleurs patrouilleur] ; créer l'espece des patrouilleurs
+patrouilleurs-own [id] ; ajouter l'attribut d'identitication a tout les patrouilleurs
 
 
 to setup 
+  clear-all
+  reset-ticks
   
+  set-default-shape patrouilleurs "airplane" ; tout les patrouilleurs ont une forme d'avion
+  create-patrouilleurs n-patrouille
+  ask patrouilleurs [ 
+    setxy 9.5 9.5 ; déplace le patrouilleur au "centre" comme c'est du 20x20 (0-19x0-19) 9.5x9.5 du coup
+    set id who ; init l'id du patrouilleurs
+    set label id ; affiche l'id attention le faire aprés l'init de l'id
+  ]
 end
 
 to go
+  one-step ; do one step in loop
 end
 
 to one-step
-end</code>
+  if ticks >= max-step [ stop ] ; stop do nothing if we exceed the max steps
+  go-patrouille ; move the patrouille
+  tick ; increment the tick counter
+end
+
+to go-patrouille
+  ask patrouilleurs [ move-to one-of neighbors4 ] ; move all the patrouilleurs to the neighbours around them
+end]]></code>
   <widgets>
     <view x="368" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="0" height="549" showTickCounter="true" patchSize="27.25" fontSize="10" wrappingAllowedY="false" width="549" tickCounterLabel="ticks" maxPycor="19" updateMode="0" maxPxcor="19" minPxcor="0"></view>
     <button x="20" y="15" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="55">setup</button>
-    <button x="85" y="15" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="55">go</button>
+    <button x="85" y="15" height="40" disableUntilTicks="false" forever="true" kind="Observer" width="55">go</button>
     <button x="150" y="15" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="70">one-step</button>
     <slider x="20" step="1" y="65" max="4000" width="250" display="max-step" height="50" min="3000" direction="Horizontal" default="3000.0" variable="max-step"></slider>
-    <chooser x="20" y="125" height="60" variable="n-patrouille" current="0" width="250" display="n-patrouille">
+    <chooser x="20" y="125" height="60" variable="n-patrouille" current="1" width="250" display="n-patrouille">
       <choice type="double" value="1.0"></choice>
       <choice type="double" value="2.0"></choice>
       <choice type="double" value="4.0"></choice>
