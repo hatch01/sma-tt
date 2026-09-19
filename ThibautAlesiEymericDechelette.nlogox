@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <model version="NetLogo 7.0.4" snapToGrid="true">
-  <code><![CDATA[breed [patrouilleurs patrouilleur] ; créer l'espece des patrouilleurs
-patrouilleurs-own [id] ; ajouter l'attribut d'identitication a tout les patrouilleurs
+  <code><![CDATA[globals [avg-idleness max-idleness max-max-idleness max-avg-idleness normalized-max-max-idleness normalized-max-avg-idleness]
 
+breed [patrouilleurs patrouilleur] ; créer l'espece des patrouilleurs
+patrouilleurs-own [id] ; ajouter l'attribut d'identitication a tout les patrouilleurs
+patches-own [idleness] ; oisiveté
 
 to setup 
   clear-all
-  reset-ticks
   
   set-default-shape patrouilleurs "airplane" ; tout les patrouilleurs ont une forme d'avion
   create-patrouilleurs n-patrouille
@@ -15,6 +16,14 @@ to setup
     set id who ; init l'id du patrouilleurs
     set label id ; affiche l'id attention le faire aprés l'init de l'id
   ]
+  ask patches [ set idleness 0 ]
+  
+  set max-max-idleness 0
+  set max-avg-idleness 0
+  set normalized-max-avg-idleness 0
+  set normalized-max-max-idleness 0
+  
+  reset-ticks
 end
 
 to go
@@ -24,19 +33,36 @@ end
 to one-step
   if ticks >= max-step [ stop ] ; stop do nothing if we exceed the max steps
   go-patrouille ; move the patrouille
+  update-patches
   tick ; increment the tick counter
 end
+
+to update-patches
+  ask patches [
+    if not any? patrouilleurs-here  [
+      set idleness idleness + 1
+    ]
+    
+    set avg-idleness mean [idleness] of patches
+    set max-idleness max [idleness] of patches
+    set max-max-idleness max (list max-max-idleness max-idleness)
+    set max-avg-idleness max (list max-avg-idleness avg-idleness)
+    set normalized-max-max-idleness (n-patrouille / count patches) * max-max-idleness
+    set normalized-max-avg-idleness (n-patrouille / count patches) * max-avg-idleness
+  ]
+end
+  
 
 to go-patrouille
   ask patrouilleurs [ move-to one-of neighbors4 ] ; move all the patrouilleurs to the neighbours around them
 end]]></code>
   <widgets>
-    <view x="368" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="0" height="549" showTickCounter="true" patchSize="27.25" fontSize="10" wrappingAllowedY="false" width="549" tickCounterLabel="ticks" maxPycor="19" updateMode="0" maxPxcor="19" minPxcor="0"></view>
+    <view x="368" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="0" height="549" showTickCounter="true" patchSize="27.25" fontSize="10" wrappingAllowedY="false" width="549" tickCounterLabel="ticks" maxPycor="19" updateMode="1" maxPxcor="19" minPxcor="0"></view>
     <button x="20" y="15" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="55">setup</button>
     <button x="85" y="15" height="40" disableUntilTicks="false" forever="true" kind="Observer" width="55">go</button>
     <button x="150" y="15" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="70">one-step</button>
-    <slider x="20" step="1" y="65" max="4000" width="250" display="max-step" height="50" min="3000" direction="Horizontal" default="3000.0" variable="max-step"></slider>
-    <chooser x="20" y="125" height="60" variable="n-patrouille" current="1" width="250" display="n-patrouille">
+    <slider x="20" step="1" y="65" max="4000" width="250" display="max-step" height="50" min="3000" direction="Horizontal" default="4000.0" variable="max-step"></slider>
+    <chooser x="20" y="125" height="60" variable="n-patrouille" current="6" width="250" display="n-patrouille">
       <choice type="double" value="1.0"></choice>
       <choice type="double" value="2.0"></choice>
       <choice type="double" value="4.0"></choice>
@@ -45,6 +71,40 @@ end]]></code>
       <choice type="double" value="32.0"></choice>
       <choice type="double" value="64.0"></choice>
     </chooser>
+    <monitor x="920" precision="17" y="15" height="60" fontSize="11" width="100" display="max idleness">max-idleness</monitor>
+    <monitor x="925" precision="17" y="105" height="60" fontSize="11" width="100" display="Average idleness">avg-idleness</monitor>
+    <monitor x="1035" precision="17" y="105" height="60" fontSize="11" width="170" display="max average idleness ever">max-avg-idleness</monitor>
+    <monitor x="1035" precision="17" y="15" height="60" fontSize="11" width="120" display="max max idleness">max-max-idleness</monitor>
+    <monitor x="1165" precision="17" y="15" height="60" fontSize="11" width="185" display="normalized max max idleness">normalized-max-max-idleness</monitor>
+    <monitor x="1215" precision="17" y="105" height="60" fontSize="11" width="185" display="normalized max avg idleness">normalized-max-avg-idleness</monitor>
+    <plot x="1415" autoPlotX="true" yMax="10.0" autoPlotY="true" y="15" xMin="0.0" height="575" legend="true" xMax="3000.0" yMin="0.0" width="1100" xAxis="temps" display="idleness">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="avg idleness" color="-16777216" legend="true">
+        <setup></setup>
+        <update>plot avg-idleness</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="max avg idleness" color="-7500403" legend="true">
+        <setup></setup>
+        <update>plot max-avg-idleness</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="max idleness" color="-2674135" legend="true">
+        <setup></setup>
+        <update>plot max-idleness</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="max max idleness" color="-955883" legend="true">
+        <setup></setup>
+        <update>plot max-max-idleness</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="normalized max max idleness" color="-6459832" legend="true">
+        <setup></setup>
+        <update>plot normalized-max-max-idleness</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="normalized max avg idleness" color="-1184463" legend="true">
+        <setup></setup>
+        <update>plot normalized-max-avg-idleness</update>
+      </pen>
+    </plot>
   </widgets>
   <info>## WHAT IS IT?
 
