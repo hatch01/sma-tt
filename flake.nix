@@ -3,37 +3,24 @@
 
   inputs = {
     nixpkgs.url = "github:hatch01/nixpkgs/netlogo";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    systems.url = "github:nix-systems/default";
   };
 
   outputs =
-    { self, ... }@inputs:
+    inputs@{ self, flake-parts, ... }:
 
-    let
-      supportedSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "aarch64-darwin"
-      ];
-      forEachSupportedSystem =
-        f:
-        inputs.nixpkgs.lib.genAttrs supportedSystems (
-          system:
-          f {
-            inherit system;
-            pkgs = import inputs.nixpkgs { inherit system; };
-          }
-        );
-    in
-    {
-      devShells = forEachSupportedSystem (
-        { pkgs, system }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = import inputs.systems;
+
+      perSystem =
+        { pkgs, ... }:
         {
-          default = pkgs.mkShell {
+          devShells.default = pkgs.mkShell {
             packages = with pkgs; [
               netlogo
             ];
           };
-        }
-      );
+        };
     };
 }
