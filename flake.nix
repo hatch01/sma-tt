@@ -19,6 +19,9 @@
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [
               netlogo
+              python314Packages.pandas
+              python314Packages.matplotlib
+              python314
             ];
           };
         };

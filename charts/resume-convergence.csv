@@ -1,0 +1,29 @@
+strategie,n-patrouille,step_90pct
+cognitif,1,428
+cognitif,2,689
+cognitif,4,589
+cognitif,8,616
+cognitif,16,877
+cognitif,32,1475
+cognitif,64,1000
+do nothing,1,3600
+do nothing,2,3600
+do nothing,4,3600
+do nothing,8,3600
+do nothing,16,3600
+do nothing,32,3600
+do nothing,64,3600
+max-idle,1,925
+max-idle,1,876
+max-idle,4,606
+max-idle,8,414
+max-idle,16,62
+max-idle,32,12
+max-idle,64,9
+random,1,2886
+random,2,2193
+random,4,2465
+random,8,2318
+random,8,1497
+random,32,1366
+random,64,27
