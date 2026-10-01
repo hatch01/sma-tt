@@ -191,14 +191,14 @@ end
         <update>plot normalized-max-avg-idleness</update>
       </pen>
     </plot>
-    <chooser x="20" y="190" height="60" variable="strategie" current="2" width="250" display="strategie">
+    <chooser x="20" y="190" height="60" variable="strategie" current="3" width="250" display="strategie">
       <choice type="string" value="max-idle"></choice>
       <choice type="string" value="random"></choice>
       <choice type="string" value="cognitif"></choice>
       <choice type="string" value="do nothing"></choice>
     </chooser>
   </widgets>
-  <info>## WHAT IS IT?
+  <info><![CDATA[## WHAT IS IT?
 
 Comme le problème de la collecte de colis par des agents coopératifs, le problème de la patrouille multi-
 agents constitue un banc d’essai pour étudier, raffiner, expérimenter et évaluer les algorithmes multi-agents. Patrouiller consiste à parcourir une zone géographique pour la surveiller, par exemple un réseau local susceptible de subir des attaques informatiques, des pages web récemment modifiées devant être indexées par un moteur de recherche ou une zone pour localiser des personnes en danger devant être secourues. Dans ce TT, vous devez concevoir divers comportements d’agent pour patrouiller, les implémenter et les évaluer à l’aide de NetLogo.
@@ -243,6 +243,12 @@ Sur la droite de la visualisation du monde, vous pouvez observer plusieurs cases
 
 Il existe également les équivalents de ces métriques en versions moyennées.
 
+On constate que au vu de la normalized-max-avg-idleness, l'algorithme cognitif qu'on aurait pu supposer le plus efficace n'est en réalité pas plus efficace que le max-idle qui choisi simplement le maximum d'idle parmi les voisins. En effet, l'algorithme cognitif a tendance à grouper tout les patrouilleurs dans la même zone et également à les faire osciller car ceux-ci ne finissent jamais leurs travaux et recalculent une nouvelle cible à chaque tick. On le voit facilement avec le boxplot :
+ ![BoxPlot](https://raw.githubusercontent.com/hatch01/sma-tt/refs/heads/main/charts/2-boxplot-final.png)
+
+Sur le box plot final (step 4000, échelle libre par panneau), max-idle domine toutes les autres stratégies avec une valeur quasi stable autour de 0,7-1,1 quelle que soit la taille de l'essaim, et une dispersion intersimulation très faible (CV: coefficient de dispertion de 2-3 %) qui traduit un comportement déterministe : chaque agent suit son voisin le plus oisif, ce qui répartit naturellement les patrouilleurs. Le comportemebt cognitif est la seule stratégie qui se dégrade clairement avec l'effectif (0,63 -> 8,84, soit ×14), et c'est aussi la plus dispersée (CV 12 %, boîtes allant de 7,4 à 11,2 à 64 agents) : la boîte large traduit l'absence de coordination, tous les patrouilleurs convergeant vers le même argmax global d'idleness dont le choix dépend du shuffle. Le comportement aléatoire plafonne (3,8 max, puis redescente à 2,83) mais varie le plus (CV 16 %), tandis que la stratégie immobile donne une boîte complètement plate, ce qui rappelle que la mesure est saturée et sert uniquement de borne haute au classement.
+
+
 ## THINGS TO TRY
 
 Vous pouvez modifier :
@@ -254,7 +260,7 @@ Vous pouvez modifier :
 
 Pour améliorer le modèle cognitif, afin d'éviter de regrouper les patrouilleurs et réduire la couverture du monde, on pourrait plutôt que d'assigner l'ensemble de l'essaim à la même case intéressante en terme de coût, assigner un seul patrouilleur par case intéressante. Cela disperserait naturellement plus les patrouilleurs et couvrirait plus de cases du monde.
 
-</info>
+]]></info>
   <turtleShapes>
     <shape name="default" rotatable="true" editableColorIndex="0">
       <polygon color="-1920102913" filled="true" marked="true">
@@ -1090,7 +1096,7 @@ Pour améliorer le modèle cognitif, afin d'éviter de regrouper les patrouilleu
   </linkShapes>
   <previewCommands>setup repeat 75 [ go ]</previewCommands>
   <experiments>
-    <experiment name="experiment" repetitions="10" sequentialRunOrder="true" runMetricsEveryStep="true">
+    <experiment name="experiment" repetitions="20" sequentialRunOrder="true" runMetricsEveryStep="true">
       <setup>setup</setup>
       <go>go</go>
       <exitCondition><![CDATA[ticks >= max-step]]></exitCondition>
