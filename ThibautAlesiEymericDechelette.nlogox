@@ -148,7 +148,7 @@ end
     <button x="85" y="15" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="55">go</button>
     <button x="150" y="15" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="70">one-step</button>
     <slider x="20" step="1" y="65" max="4000" width="250" display="max-step" height="50" min="3000" direction="Horizontal" default="4000.0" variable="max-step"></slider>
-    <chooser x="20" y="125" height="60" variable="n-patrouille" current="6" width="250" display="n-patrouille">
+    <chooser x="20" y="125" height="60" variable="n-patrouille" current="3" width="250" display="n-patrouille">
       <choice type="double" value="1.0"></choice>
       <choice type="double" value="2.0"></choice>
       <choice type="double" value="4.0"></choice>
@@ -200,39 +200,60 @@ end
   </widgets>
   <info>## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+Comme le problème de la collecte de colis par des agents coopératifs, le problème de la patrouille multi-
+agents constitue un banc d’essai pour étudier, raffiner, expérimenter et évaluer les algorithmes multi-agents. Patrouiller consiste à parcourir une zone géographique pour la surveiller, par exemple un réseau local susceptible de subir des attaques informatiques, des pages web récemment modifiées devant être indexées par un moteur de recherche ou une zone pour localiser des personnes en danger devant être secourues. Dans ce TT, vous devez concevoir divers comportements d’agent pour patrouiller, les implémenter et les évaluer à l’aide de NetLogo.
+
+Le monde de 20 ×20 tuiles qui n'est pas un tore.
+
+Le problème de la patrouille consiste à définir un comportement global pour que chaque emplacement
+soit visité le plus souvent possible. Considérons un graphe G = (V, E) de n nœuds et qu’un pas de simulation est nécessaire à un patrouilleur pour aller à un nœud adjacent. Nous appelons oisiveté d’un noeud i ∈ V au pas de simulation t (notée Idlet(i)) l’intervalle de temps écoulé depuis la dernière visite d’un patrouilleur sur ce noeud. Par convention à l’instant 0, l’oisiveté de chaque emplacement est nulle.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+- oisiveté moyenne du graphe G au pas de simulation t
+AvgIdlet(G) = 1/n ∑ i∈V Idlet(i) (1)
+- oisiveté maximale du graphe G au pas de simulation t
+MaxIdlet(G) = max i∈V Idlet(i)
+
+À partir de cette mesure instantanée, nous définissons un critère pour comparer les différentes stratégies
+multi-agents dans une simulation de tf pas qui correspond au plus grand intervalle de temps durant lequel un emplacement ne reçoit la visite d’aucun patrouilleur :
+MaxMaxIdle(G) = max t≤tf MaxIdlet(G)
+Pour mesurer la contribution individuelle des patrouilleurs, ce critère peut être normalisé :
+MaxMaxIdle(G) = m / n × MaxMaxIdle(G)
+
+On a un premier comportement réactif où la seule action réalisable par un agent est le déplacement vers l’une des tuiles adjacentes si cette dernière est accessible. Deux comportements réactifs sont possibles. Selon si la prise de décision est aléatoire ou heuristique, le déplacement est arbitraire ou se fonde sur l’oisiveté des emplacements adjacents.
+
+On a aussi un comportement cognitif où l'on considère que la perception de l’environnement par les patrouilleurs est globale, c’est-à-dire qu’un patrouilleur peut percevoir l’oisiveté de toutes les tuiles. Un patrouilleur cognitif se dirige alors vers la tuile qui n’a pas été visitée depuis le plus longtemps, en utilisant un algorithme de plus court chemin. Pour ce faire, une fonction d’utilité évalue chaque tuile en prenant en compte son coût (distance) et son gain (oisiveté).
+
+Enfin, on a un comportement random où l'exploration de l'environnement par les patrouilleurs.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Sur l'onglet "interface", vous pouvez retrouver les boutons :
+- Setup: permet d'initialiser l'environnement de simulations
+- One-Step: permet d'exécuter un pas de simulation
+- Go: permet d'exécuter une simulation entière (l'équivalent de l'appui de plusieurs One-Step consécutifs)
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+Sur la droite de la visualisation du monde, vous pouvez observer plusieurs cases:
+- case "max idleness": correspond à l'oisiveté maximale parmi toute les cases du monde à l'instant t (tick courant)
+- case "max max idleness": correspond à l'oisiveté maximale sur l'entièreté de la simulation
+- case "normalized max max idleness": correspond à la case précédente pondérée par le facteur (m/n, avec m le nombre de patrouilleurs et n le nombre de cases)
+
+Il existe également les équivalents de ces métriques en versions moyennées.
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Vous pouvez modifier :
+- le nombre maximal de pas d'une simulation, plus son nombre est faible plus la simulation est rapide et potentiellement pas représentative de l'efficacité de l'exploration des patrouilleurs.
+- le nombre de patrouilleurs
+- la stratégie: random (aléatoire), max-idle (réactif), cognitif
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+Pour améliorer le modèle cognitif, afin d'éviter de regrouper les patrouilleurs et réduire la couverture du monde, on pourrait plutôt que d'assigner l'ensemble de l'essaim à la même case intéressante en terme de coût, assigner un seul patrouilleur par case intéressante. Cela disperserait naturellement plus les patrouilleurs et couvrirait plus de cases du monde.
 
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 </info>
   <turtleShapes>
     <shape name="default" rotatable="true" editableColorIndex="0">
@@ -1068,4 +1089,34 @@ end
     </shape>
   </linkShapes>
   <previewCommands>setup repeat 75 [ go ]</previewCommands>
+  <experiments>
+    <experiment name="experiment" repetitions="10" sequentialRunOrder="true" runMetricsEveryStep="true">
+      <setup>setup</setup>
+      <go>go</go>
+      <exitCondition><![CDATA[ticks >= max-step]]></exitCondition>
+      <metrics>
+        <metric>normalized-max-avg-idleness</metric>
+      </metrics>
+      <constants>
+        <enumeratedValueSet variable="n-patrouille">
+          <value value="1"></value>
+          <value value="2"></value>
+          <value value="4"></value>
+          <value value="8"></value>
+          <value value="16"></value>
+          <value value="32"></value>
+          <value value="64"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="strategie">
+          <value value="&quot;cognitif&quot;"></value>
+          <value value="&quot;max-idle&quot;"></value>
+          <value value="&quot;random&quot;"></value>
+          <value value="&quot;do nothing&quot;"></value>
+        </enumeratedValueSet>
+        <enumeratedValueSet variable="max-step">
+          <value value="4000"></value>
+        </enumeratedValueSet>
+      </constants>
+    </experiment>
+  </experiments>
 </model>
